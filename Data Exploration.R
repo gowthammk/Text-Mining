@@ -38,7 +38,6 @@ for (i in 1:length(folder_list)) {
     dtm2 <- as.matrix(dtm)
   }
 } 
-
 freq <- colSums(dtm2)
 sorted_freq <- sort(freq, decreasing = T)
 
@@ -59,4 +58,4 @@ for (i in names(sorted_freq)){
   }
 }
 df1 = df1[-1]
-
+asd
