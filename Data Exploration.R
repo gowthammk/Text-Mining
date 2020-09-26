@@ -7,6 +7,7 @@ library(readr)
 library(tokenizers)
 library(tm)
 library(stringr)
+library(wordcloud)
 
 #Setting up Working directory
 setwd("C:/Users/Gowtham/OneDrive/Documents/Text Mining/Newsgroups/")
@@ -43,19 +44,26 @@ sorted_freq <- sort(freq, decreasing = T)
 
 #Task 1 to create top 200 words and visualize using word cloud
 #install.packages("wordcloud")
-library(wordcloud)
 words <- names(sorted_freq)
-head(words)
-wordcloud(words[1:200], sorted_freq[1:200])
+#Set seed to replicate the word cloud on different execution
+set.seed(1)
+wordcloud(words[1:200], sorted_freq[1:200], min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.15, 
+          colors=brewer.pal(8, "Dark2"))
 
 #Task 2 Repeat the previous step, but now filter tokens by 
 #length (min. size = 4 and max. size = 20). 
 #Please indicate the total occurrences of the words
-df1 = data.frame(nrows = 1)
+filtered_words = data.frame(nrows = 1)
 for (i in names(sorted_freq)){
   if (str_length(i) >= 4  & str_length(i) <= 20){
-    df1[i] <- sorted_freq[[i]]
+    filtered_words[i] <- sorted_freq[[i]]
   }
 }
-df1 = df1[-1]
-asd
+filtered_words = filtered_words[-1]
+#Set seed to replicate the word cloud on different execution
+set.seed(1)
+wordcloud(names(filtered_words[1,1:200]), filtered_words[1,1:200], min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.05, 
+          colors=brewer.pal(8, "Dark2"))
+
