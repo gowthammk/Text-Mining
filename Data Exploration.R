@@ -236,8 +236,8 @@ library(e1071) ##Implementing Naive Bayes
 
 ?naiveBayes
 nv_fit <- naiveBayes(x_train, y_train)
-Y_pred_nb <- predict(nv_fit, x_test)
-confusionmat_nb_acc <- table(Y_pred_nb, y_test)
+y_pred_nb <- predict(nv_fit, x_test)
+confusionmat_nb_acc <- table(y_pred_nb, y_test)
 accuracy_value <- function(x) {
   sum(diag(x) / (sum(rowSums(x)))) * 100
 }
@@ -554,3 +554,58 @@ plot(tune_rf$x$ntree, tune_rf$x$mtry, xlab="No. of trees",ylab="mtry",main="Rand
 plot(tune_svm$x$C, tune_svm$x$sigma, xlab="Cost", ylab="Sigma", main="SVM",
      col="black",pch=16)
 
+############################## Cross validation ####################################
+library(class) #Contains KNN
+library(randomForest)
+library(e1071) #Contains SVM
+library(rpart) #Contains Decision Tree
+k = 10
+
+folds <- cut(seq(1,nrow(fs_data)),breaks=10,labels=FALSE)
+acc.knn = acc.rf = acc.svm = acc.tree = numeric(0)
+#Perform 10 fold cross validation
+for(i in 1:10){
+  #Segement your data by fold using the which() function 
+  testIndexes <- which(folds==i,arr.ind=TRUE)
+  testData <- fs_data[testIndexes, ]
+  trainData <- fs_data[-testIndexes, ]
+  x_train = train[-55]
+  y_train = train$new_category
+  #Extract news_category column for to measure accuracy
+  x_test = test[-55]
+  y_test = test$new_category
+  #KNN
+  knn_cv <- knn(x_train, x_test, cl = y_train, k = tune_knn$x)
+  cm_cv_knn <- table(knn_cv, y_test)
+  acc.knn <- sum(diag(cm_cv_knn) / (sum(rowSums(cm_cv_knn)))) * 100
+  #Random Forest
+  rf_cv <-randomForest(x_train, y_train, ntree = tune_rf$x$ntree, mtry = tune_rf$x$mtry)
+  y_pred_rf_cv <- predict(rf_cv,x_test)
+  cm_cv_rf <- table(y_pred_rf_cv, y_test)
+  acc.rf <- sum(diag(cm_cv_rf) / (sum(rowSums(cm_cv_rf)))) * 100
+  #SVM
+  svm_cv <- svm(x_train, y_train, cost = tune_svm$x$C, sigma = tune_svm$x$sigma)
+  y_pred_svm_cv <- predict(svm_cv,x_test)
+  cm_cv_svm <- table(y_pred_svm_cv, y_test)
+  acc.svm <- sum(diag(cm_cv_svm) / (sum(rowSums(cm_cv_svm)))) * 100
+  #Decision Tree
+  dtree_cv <-  rpart(new_category~.,data = train,minsplit=tune_trees$x$minsplit,
+                     cp=tune_trees$x$cp)
+  y_pred_dtree_cv <- predict(dtree_cv,x_test, type = "class")
+  cm_cv_dtree <- table(y_pred_dtree_cv, y_test)
+  acc.tree <- sum(diag(cm_cv_dtree) / (sum(rowSums(cm_cv_dtree)))) * 100
+}
+mean(acc.knn)
+mean(acc.rf)
+mean(acc.svm)
+mean(acc.tree)
+
+
+plot(acc.knn,t="b",main="Cross Validated KNN Accuracy")
+plot(acc.rf,t="b",main="Cross Validated RF Accuracy")
+plot(acc.svm,t="b",main="Cross Validated SVM Accuracy")
+plot(acc.tree,t="b",main="Cross Validated DT Accuracy")
+
+boxplot(acc.knn, acc.rf, acc.svm, acc.tree,
+        main="Overall CV prediction accuracy",
+        names=c("KNN","RF","SVM","TREE"))
