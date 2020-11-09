@@ -1,4 +1,4 @@
-# TEXT MINING
+# TEXTUAL DATA CLASSIFICATION
 In this work we will use an online newsgroup text dataset. This dataset contains text articles posted to each four online newsgroups, for a total of 400 articles. For documentation and complete details please see the following website: http://www-2.cs.cmu.edu/afs/cs/project/theo-11/www/naive-bayes.html This data is useful for a variety of text classification projects. The target label of each article is the newsgroup it bellows to.
 ## Exploration of the dataset
 First task is to get a feel of the data that we will be dealing with in the rest of the Project.
